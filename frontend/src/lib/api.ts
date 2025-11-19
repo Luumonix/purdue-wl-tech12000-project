@@ -22,33 +22,32 @@ const getApiUrl = () => {
   return 'http://localhost:8000';
 };
 
-const api = axios.create({
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Single interceptor to set both baseURL and token
-api.interceptors.request.use((config) => {
-  // Set the baseURL at request time
-  if (!config.baseURL) {
-    config.baseURL = getApiUrl();
-    console.log('[API] Request using baseURL:', config.baseURL);
-  }
+// Helper to make requests with dynamic baseURL
+const makeRequest = async (method: string, endpoint: string, data?: any, config?: any) => {
+  const baseURL = getApiUrl();
+  const url = `${baseURL}${endpoint}`;
+  console.log('[API] Making request to:', url);
   
-  // Add token if available
   const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...(config?.headers || {})
+  };
   
-  return config;
-});
+  return axios({
+    method,
+    url,
+    data,
+    ...config,
+    headers
+  });
+};
 
 // Auth API
 export const authAPI = {
   register: async (username: string, email: string, password: string) => {
-    const response = await api.post('/api/auth/register', { username, email, password });
+    const response = await makeRequest('post', '/api/auth/register', { username, email, password });
     return response.data;
   },
   
@@ -57,7 +56,7 @@ export const authAPI = {
     formData.append('username', username);
     formData.append('password', password);
     
-    const response = await api.post('/api/auth/login', formData, {
+    const response = await makeRequest('post', '/api/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -66,7 +65,7 @@ export const authAPI = {
   },
   
   getProfile: async () => {
-    const response = await api.get('/api/auth/me');
+    const response = await makeRequest('get', '/api/auth/me');
     return response.data;
   },
 };
@@ -79,17 +78,17 @@ export const questionsAPI = {
     if (category) params.append('category', category);
     if (difficulty) params.append('difficulty', difficulty);
     
-    const response = await api.get(`/api/questions/random?${params.toString()}`);
+    const response = await makeRequest('get', `/api/questions/random?${params.toString()}`);
     return response.data;
   },
   
   getCategories: async () => {
-    const response = await api.get('/api/questions/categories');
+    const response = await makeRequest('get', '/api/questions/categories');
     return response.data;
   },
   
   submitAnswer: async (questionId: number, selectedAnswer: string, timeTaken?: number) => {
-    const response = await api.post('/api/questions/submit', {
+    const response = await makeRequest('post', '/api/questions/submit', {
       question_id: questionId,
       selected_answer: selectedAnswer,
       time_taken: timeTaken,
@@ -98,7 +97,7 @@ export const questionsAPI = {
   },
   
   getStats: async () => {
-    const response = await api.get('/api/questions/stats');
+    const response = await makeRequest('get', '/api/questions/stats');
     return response.data;
   },
 };
@@ -106,14 +105,14 @@ export const questionsAPI = {
 // Leaderboard API
 export const leaderboardAPI = {
   getLeaderboard: async (limit: number = 10) => {
-    const response = await api.get(`/api/leaderboard?limit=${limit}`);
+    const response = await makeRequest('get', `/api/leaderboard?limit=${limit}`);
     return response.data;
   },
   
   getMyRank: async () => {
-    const response = await api.get('/api/leaderboard/me');
+    const response = await makeRequest('get', '/api/leaderboard/me');
     return response.data;
   },
 };
 
-export default api;
+export default axios;
