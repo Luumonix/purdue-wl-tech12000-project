@@ -4,6 +4,7 @@ import axios from 'axios';
 const getApiUrl = () => {
   // If NEXT_PUBLIC_API_URL is set, use it
   if (process.env.NEXT_PUBLIC_API_URL) {
+    console.log('[API] Using NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
     return process.env.NEXT_PUBLIC_API_URL;
   }
   
@@ -12,17 +13,23 @@ const getApiUrl = () => {
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
     
+    console.log('[API] Browser detected - protocol:', protocol, 'hostname:', hostname);
+    
     // If on production domain, use production API
     if (hostname === 'purdue-tech120-dev.ishmeet.net') {
-      return `${protocol}//api.purdue-tech120-dev.ishmeet.net`;
+      const apiUrl = `${protocol}//api.purdue-tech120-dev.ishmeet.net`;
+      console.log('[API] Using production API:', apiUrl);
+      return apiUrl;
     }
   }
   
   // Default to localhost
+  console.log('[API] Using default localhost');
   return 'http://localhost:8000';
 };
 
 const API_URL = getApiUrl();
+console.log('[API] Final API_URL:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
