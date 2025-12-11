@@ -273,7 +273,6 @@ This project is created for educational purposes as part of TECH 120 coursework 
 
 - Purdue University TECH 120 instructors and staff
 - Research participants who provided valuable insights
-- The cybersecurity community for best practices and guidelines
 
 ## 📞 Support
 
@@ -284,4 +283,4 @@ For questions or issues:
 
 ---
 
-**Built with ❤️ by Group #5 for Purdue University TECH 120 - Fall 2025**
+**Built with ❤️ by Ishmeet Thethi for Purdue University TECH 120 - Fall 2025**
